@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HW Submission – Voice to Visualizer</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121a2b;
+      --text: #e8ecf2;
+      --muted: #9fb0c7;
+      --accent: #6db1ff;
+      --border: #21304b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 16px 48px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.2);
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      letter-spacing: .2px;
+    }
+    h1 {
+      font-size: 22px;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin: 14px 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .divider {
+      height: 1px; background: var(--border); margin: 18px 0;
+    }
+    .btns {
+      display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 16px;
+    }
+    .btn {
+      appearance: none; border: 1px solid var(--border);
+      background: #0e1a2e; color: var(--text);
+      border-radius: 12px; padding: 10px 14px; cursor: pointer;
+      font-weight: 600; font-size: 14px; text-decoration: none;
+    }
+    .btn:hover { border-color: var(--accent); outline: 0; }
+    .codewrap {
+      position: relative; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; background: #0a0f1d;
+    }
+    .codehdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+      color: var(--muted); font-size: 13px;
+    }
+    pre {
+      margin: 0; padding: 14px; overflow: auto; font-family: var(--mono);
+      font-size: 12.5px; white-space: pre;
+      color: #dbe6ff;
+    }
+    .small { font-size: 12px; color: var(--muted); }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:999px; font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Voice to Visualizer</h1>
+      <h2>Assignment Submission</h2>
+      <div class="meta">
+        <div><span class="pill">Primary Link:</span> Provide your live demo / repo URL in Canvas.</div>
+        <div><span class="pill">Attached Code:</span> <code>visualizer.ck</code> (download below)</div>
+      </div>
+      <div class="divider"></div>
+      <p>
+        Per the instructions, here is my primary project link (submitted in Canvas). For your convenience,
+        I’ve also attached the raw ChucK source file for review and grading.
+      </p>
+      <div class="btns">
+        <a class="btn" href="data:text/plain;base64,Ly8gPT09PT09PT09PT09PT09PT09PSBTSU1QTEUgTU9EQUwgSkFNID09PT09PT09PT09PT09PT09PT0KLy8gTGVhZDogcmFuZG9tIEUgRG9yaWFuICgyIG9jdGF2ZXMpICsgcmV2ZXJiCi8vIERyb25lOiBzaW5nbGUgRTMgd2l0aCBzbG93IGdhaW4gb3NjaWxsYXRpb24KLy8gUmh5dGhtOiBraWNrIGV2ZXJ5IGJlYXQKCi8vIC0tLS0tLS0tLS0gR1JBUEhJQ1MgRkxBRyAtLS0tLS0tLS0tCmdsb2JhbCBpbnQga2lja0ZsYXNoOyAgIC8vIDAvMTogc2V0IHRvIDEgd2hlbiBraWNrIHRyaWdnZXJzCmdsb2JhbCBmbG9hdCBkcm9uZVZpczsgICAvLyAwLi4xIG1pcnJvciBvZiB0aGUgZHJvbmUncyBjdXJyZW50IGdhaW4KCi8vIGxlYWQgPyB2aXN1YWxzIGJyaWRnZQpnbG9iYWwgaW50ICAgbGVhZFRyaWc7ICAgLy8gc2V0IHRvIDEgb24gZWFjaCBub3RlLW9uCmdsb2JhbCBmbG9hdCBsZWFkRnJlcTsgICAvLyBIeiBvZiBjdXJyZW50IG5vdGUKZ2xvYmFsIGZsb2F0IHByZXZGcmVxOyAgIC8vIEh6IG9mIHByZXZpb3VzIG5vdGUKZ2xvYmFsIGZsb2F0IGxlYWRWZWw7ICAgIC8vIDAuLjEgKGhvdyBzdHJvbmcgdGhlIG5vdGUgaXM7IHVzZSBhIGNvbnN0YW50IGlmIG5vIGVudmVsb3BlKQpnbG9iYWwgZmxvYXQgbGVhZER1clNlYzsgLy8gZHVyYXRpb24gKGluIHNlY29uZHMpIG9mIHRoZSBjdXJyZW50IGxlYWQgbm90ZQoKCgovLyAtLS0tLS0tLS0tIFRFTVBPIC0tLS0tLS0tLS0KMTIwID0+IGZsb2F0IEJQTTsgICAgICAgICAgICAgICAgICAgICAgICAgLy8gdHdlYWsgdGVtcG8KKDYwLjAgLyBCUE0pOjpzZWNvbmQgPT4gZHVyIGJlYXQ7ICAgICAgICAgLy8gMSBiZWF0CgovLyAtLS0tLS0tLS0tIExFQUQgKHJhbmRvbSBub3RlcyArIHJldmVyYikgLS0tLS0tLS0tLQpTYXdPc2MgbGVhZCA9PiBHYWluIGxnID0+IEpDUmV2IHJ2ID0+IGRhYzsKMC4yNSA9PiBsZy5nYWluOwowLjIwID0+IHJ2Lm1peDsgICAgICAgICAgICAgICAgICAvLyB0d2VhayByZXZlcmIgYW1vdW50ICgwLi4xKQoKLy8gRSBEb3JpYW4gKEUgRiMgRyBBIEIgQyMgRCkgYWNyb3NzIHR3byBvY3RhdmVzOiBFMy4uRDUKWzUyLDU0LDU1LDU3LDU5LDYxLDYyLCA2NCw2Niw2Nyw2OSw3MSw3Myw3NF0gQD0+IGludCBFX0RPUklBTltdOwoKZnVuIHZvaWQgbGVhZFJhbmRvbSgpIHsKICAgIC8vIHN0YXJ0IGFsaWduZWQgdG8gYW4gOHRoLW5vdGUgZ3JpZAogICAgKGJlYXQvMikgLSAobm93ICUgKGJlYXQvMikpID0+IG5vdzsKICAgIAogICAgLy8gYmFzZSBsZW5ndGhzIHRvIGNob29zZSBmcm9tOiA4dGhzLCBxdWFydGVycywgaGFsdmVzCiAgICBbIGJlYXQvMiwgYmVhdCwgMjo6YmVhdCBdIEA9PiBkdXIgYmFzZUNob2ljZXNbXTsKICAgIAogICAgMC4wNiA9PiBmbG9hdCBqaXR0ZXJGcmFjOyAvLyArLTYlIHRpbWluZyBqaXR0ZXIKICAgIAogICAgd2hpbGUgKHRydWUpIHsKICAgICAgICAvLyAtLS0gcGljayBwaXRjaCAtLS0KICAgICAgICBNYXRoLnJhbmRvbTIoMCwgRV9ET1JJQU4uc2l6ZSgpLTEpID0+IGludCBpOwogICAgICAgIAogICAgICAgIC8vIGNvbXB1dGUgdGhlIGZyZXF1ZW5jeSBvbmNlCiAgICAgICAgU3RkLm10b2YoRV9ET1JJQU5baV0pID0+IGZsb2F0IGY7CiAgICAgICAgCiAgICAgICAgLy8gZmluYWxseSBzZXQgdGhlIG9zY2lsbGF0b3IKICAgICAgICBmID0+IGxlYWQuZnJlcTsKICAgICAgICAKICAgICAgICAvLyAtLS0gdGltaW5nIChxdWFudGl6ZWQgd2l0aCBsaWdodCBqaXR0ZXIpIC0tLQogICAgICAgIGJhc2VDaG9pY2VzW01hdGgucmFuZG9tMigwLCBiYXNlQ2hvaWNlcy5zaXplKCktMSldID0+IGR1ciBiYXNlOwogICAgICAgIChiYXNlIC8gc2FtcCkgPT4gZmxvYXQgYmFzZVNhbXBzOwogICAgICAgIE1hdGgucmFuZG9tMmYoLWppdHRlckZyYWMsIGppdHRlckZyYWMpICogYmFzZVNhbXBzID0+IGZsb2F0IGppdHRlclNhbXBzOwogICAgICAgIE1hdGgubWF4KCg1OjptcyAvIHNhbXApLCBiYXNlU2FtcHMgKyBqaXR0ZXJTYW1wcykgJCBpbnQgPT4gaW50IHRvdGFsU2FtcHM7CiAgICAgICAgCiAgICAgICAgLy8gPj4+IGV4cG9zZSBleGFjdCBkdXJhdGlvbiBpbiBzZWNvbmRzIGZvciB2aXN1YWxzIDw8PAogICAgICAgICh0b3RhbFNhbXBzIDo6IHNhbXAgLyBzZWNvbmQpICQgZmxvYXQgPT4gbGVhZER1clNlYzsKICAgICAgICAKICAgICAgICAvLyAtLS0gdXBkYXRlIGdsb2JhbHMgZm9yIHRoZSB2aXN1YWwgKG9yYml0cykgLS0tCiAgICAgICAgbGVhZEZyZXEgPT4gcHJldkZyZXE7ICAgLy8gcmVtZW1iZXIgcHJldmlvdXMgbm90ZQogICAgICAgIGYgICAgICAgID0+IGxlYWRGcmVxOyAgIC8vIGN1cnJlbnQgbm90ZQogICAgICAgIDAuOCAgICAgID0+IGxlYWRWZWw7ICAgIC8vIG9yIE1hdGgucmFuZG9tMmYoMC42LDAuOSkKICAgICAgICAKICAgICAgICAvLyB0cmlnZ2VyICphZnRlciogd2U/dmUgc2V0IGxlYWRGcmVxIGFuZCBsZWFkRHVyU2VjCiAgICAgICAgMSAgICAgICAgPT4gbGVhZFRyaWc7ICAgLy8gc3Bhd24gYW4gb3JiaXQgdGhpcyBub3RlCiAgICAgICAgCiAgICAgICAgLy8gd2FpdCBmb3IgdGhpcyBub3RlJ3MgYWN0dWFsIChqaXR0ZXJlZCkgZHVyYXRpb24KICAgICAgICAodG90YWxTYW1wcyA6OiBzYW1wKSA9PiBub3c7CiAgICB9Cn0KCnNwb3JrIH4gbGVhZFJhbmRvbSgpOwoKLy8gLS0tLS0tLS0tLSBEUk9ORSAob25lIG5vdGUgd2l0aCBnZW50bHkgc2hpZnRpbmcgdm9sdW1lKSAtLS0tLS0tLS0tClNpbk9zYyBkcm9uZSA9PiBHYWluIGRHID0+IGRhYzsKU3RkLm10b2YoNTIpID0+IGRyb25lLmZyZXE7ICAgICAgLy8gRTMKMC4wID0+IGRHLmdhaW47ICAgICAgICAgICAgICAgICAgLy8gc3RhcnQgc2lsZW50CgpTaW5Pc2MgbGZvID0+IGJsYWNraG9sZTsgICAgICAgICAvLyBzbG93IExGTyBmb3IgZ2FpbgowLjIwID0+IGxmby5mcmVxOyAgICAgICAgICAgICAgICAvLyB+NXMgY3ljbGUKCjAuMTAgPT4gZmxvYXQgRFJPTkVfTUlOOwowLjQ1ID0+IGZsb2F0IERST05FX01BWDsKCmZ1biB2b2lkIGRyb25lU3dlbGwoKSB7CiAgICB3aGlsZSAodHJ1ZSkgewogICAgICAgIERST05FX01JTiArICgobGZvLmxhc3QoKSArIDEuMCkgKiAwLjUpICogKERST05FX01BWCAtIERST05FX01JTikgPT4gZEcuZ2FpbjsKICAgICAgICBkRy5nYWluKCkgPT4gZHJvbmVWaXM7ICAgICAvLyBleHBvc2UgdG8gdmlzdWFscwogICAgICAgIDEwOjptcyA9PiBub3c7CiAgICB9Cn0Kc3BvcmsgfiBkcm9uZVN3ZWxsKCk7CgovLyAtLS0tLS0tLS0tIFJIWVRITTogS0lDSyAoODA4LXN0eWxlIHN5bnRoKSAtLS0tLS0tLS0tCmZ1biB2b2lkIGtpY2s4MDgoKSB7CiAgICAvLyBCb2R5OiBzaW5lIC0+IGFtcCBlbnYgLT4gbWl4CiAgICBTaW5Pc2MgYm9keSA9PiBBRFNSIGFtcCA9PiBHYWluIG1peCA9PiBkYWM7CiAgICAvLyBDbGljazogbm9pc2UgLT4gaGlnaHBhc3MgLT4gc2hvcnQgZW52IC0+IG1peAogICAgTm9pc2UgbiA9PiBIUEYgaHAgPT4gQURTUiBjbGljayA9PiBtaXg7CiAgICAKICAgIC8vIExldmVscwogICAgMC42ICA9PiBtaXguZ2FpbjsgICAgIC8vIG92ZXJhbGwga2ljayBsb3VkbmVzcyAocmFpc2UvbG93ZXIgdG8gdGFzdGUpCiAgICAwLjkgID0+IGJvZHkuZ2FpbjsgICAgLy8gYm9keSBkb21pbmF0ZXMKICAgIDAuMjUgPT4gbi5nYWluOyAgICAgICAvLyBjbGljayBpcyBzdWJ0bGUKICAgIAogICAgLy8gRW52ZWxvcGVzCiAgICBhbXAuc2V0KDE6Om1zLCAxMjA6Om1zLCAwLjAsIDI1Ojptcyk7ICAgLy8gZmFzdCBhdHRhY2ssIHNob3J0IGRlY2F5CiAgICBjbGljay5zZXQoMTo6bXMsIDE1OjptcywgMC4wLCA1Ojptcyk7ICAgLy8gdGlueSB0cmFuc2llbnQKICAgIDE4MDAgPT4gaHAuZnJlcTsgICAgICAgICAgICAgICAgICAgICAgICAvLyBicmlnaHRlbiBjbGljawogICAgCiAgICAvLyBUaW1pbmcgaGVscGVycwogICAgNzA6Om1zID0+IGR1ciBzd2VlcDsgICAgLy8gcGl0Y2ggc3dlZXAgbGVuZ3RoIChmZWVsIG9mIHRoZSAidGh1bXAiKQogICAgMjAgICAgID0+IGludCBzdGVwczsgICAgLy8gc21vb3RobmVzcyBvZiBzd2VlcAogICAgCiAgICAvLyBTeW5jIHRvIGJlYXQgZ3JpZAogICAgYmVhdCAtIChub3cgJSBiZWF0KSA9PiBub3c7CiAgICAKICAgIHdoaWxlKHRydWUpIHsKICAgICAgICAvLyBzbGlnaHQgbmF0dXJhbCB2YXJpYXRpb24gZWFjaCBoaXQKICAgICAgICBNYXRoLnJhbmRvbTJmKDExMC4wLCAxNDAuMCkgPT4gZmxvYXQgZlN0YXJ0OyAgLy8gSHoKICAgICAgICBNYXRoLnJhbmRvbTJmKDQwLjAsIDU1LjApICAgPT4gZmxvYXQgZkVuZDsgICAgLy8gSHoKICAgICAgICAKICAgICAgICAvLyB0cmlnZ2VyIGVudmVsb3BlcwogICAgICAgIGFtcC5rZXlPbigpOwogICAgICAgIGNsaWNrLmtleU9uKCk7CiAgICAgICAgMSA9PiBraWNrRmxhc2g7ICAgLy8gPC0tIHNldCBmbGFnIGZvciB0aGUgbGlnaHQgcHVsc2UKICAgICAgICAKICAgICAgICAvLyBleHBvbmVudGlhbCBwaXRjaCBzd2VlcDogZih0KSA9IGZTdGFydCAqIChmRW5kL2ZTdGFydCledAogICAgICAgIGZvciAoMCA9PiBpbnQgaTsgaSA8IHN0ZXBzOyBpKyspIHsKICAgICAgICAgICAgKGkgJCBmbG9hdCkgLyAoc3RlcHMgLSAxKSA9PiBmbG9hdCB0OwogICAgICAgICAgICBmU3RhcnQgKiBNYXRoLnBvdyhmRW5kIC8gZlN0YXJ0LCB0KSA9PiBib2R5LmZyZXE7CiAgICAgICAgICAgIChzd2VlcCAvIHN0ZXBzKSA9PiBub3c7CiAgICAgICAgfQogICAgICAgIAogICAgICAgIC8vIHJlbGVhc2UgZW52ZWxvcGVzCiAgICAgICAgY2xpY2sua2V5T2ZmKCk7CiAgICAgICAgYW1wLmtleU9mZigpOwogICAgICAgIAogICAgICAgIC8vIHdhaXQgdGhlIHJlc3Qgb2YgdGhlIGJlYXQKICAgICAgICAoYmVhdCAtIHN3ZWVwKSA9PiBub3c7CiAgICB9Cn0Kc3BvcmsgfiBraWNrODA4KCk7CgovL3Zpc3VhbHMgCgovLyA9PT09PSBDaHVHTDogc2lkZSBzdGFnZSBsaWdodHMgKHBhc3RlbCBibHVlKSB0aGF0IGZsYXNoIG9uIGtpY2sgPT09PT0KZnVuIHZvaWQgdmlzdWFsc0tpY2tTaWRlQmFycygpCnsKICAgIC8vIHNldCB3aW5kb3cgdGl0bGUgKG9wdGlvbmFsIHNpemUgaXMgaGFuZGxlZCBhdXRvbWF0aWNhbGx5KQogICAgR0cud2luZG93VGl0bGUoICJLaWNrIFNpZGUgTGlnaHRzIiApOyAgIC8vIEFQSSBzdHlsZSBpbiBleGFtcGxlcwogICAgCiAgICAvLyAtLS0tLSBnZW9tZXRyeTogdHdvIHRhbGwsIHRoaW4gcGxhbmVzIGFkZGVkIHRvIHRoZSBkZWZhdWx0IHNjZW5lIC0tLS0tCiAgICAvLyBjb25uZWN0IGdlb21ldHJ5IGludG8gdGhlIHNjZW5lIChleGFtcGxlIHNob3dzOiBHUGxhbmUgLS0+IEdHLnNjZW5lKCkpCiAgICBHUGxhbmUgbGVmdEdlbyAgLS0+IEdHLnNjZW5lKCk7CiAgICBHUGxhbmUgcmlnaHRHZW8gLS0+IEdHLnNjZW5lKCk7CiAgICAKICAgIC8vIHNjYWxlICYgcG9zaXRpb24gKG5vcm1hbGl6ZWQtaXNoIHNjZW5lIGNvb3JkaW5hdGVzKQogICAgLy8gd2lkdGggfjAuMDUgbG9va3MgbGlrZSBhIH4xMHB4IHNsaXZlciBvbiB+ODAwPzkwMHB4IHdpbmRvdzsKICAgIC8vIGhlaWdodCAyIGZpbGxzIHRoZSB2aWV3IHZlcnRpY2FsbHkgd2l0aCBkZWZhdWx0IGNhbWVyYS4KICAgIEAoMC41NSwgNS4wLCAxKSA9PiBsZWZ0R2VvLnNjYTsKICAgIEAoLS45OSwgMCwgMCkgID0+IGxlZnRHZW8ucG9zOwogICAgCiAgICBAKDAuNTUsIDUuMCwgMSkgPT4gcmlnaHRHZW8uc2NhOwogICAgQCggMC45OSwgMCwgMCkgID0+IHJpZ2h0R2VvLnBvczsKICAgIAogICAgLy8gbWFrZSBmbGF0LWNvbG9yIG1hdGVyaWFscyAocGFzdGVsIGJsdWUpIGFuZCBhc3NpZ24KICAgIEZsYXRNYXRlcmlhbCBsZWZ0TWF0ICggQ29sb3IuV0hJVEUgKTsKICAgIEZsYXRNYXRlcmlhbCByaWdodE1hdCggQ29sb3IuV0hJVEUgKTsKICAgIGxlZnRHZW8ubWF0KGxlZnRNYXQpOwogICAgcmlnaHRHZW8ubWF0KHJpZ2h0TWF0KTsKICAgIAogICAgLy8gYmFzZSBwYXN0ZWwgYmx1ZQogICAgQCgwLjAsIDAuMywgMS4wKSA9PiB2ZWMzIGJhc2VDb2w7ICAgLy8gc3Ryb25nIHNhdHVyYXRlZCBibHVlCiAgICAgICAgCiAgICAvLyBmbGFzaCBhY2N1bXVsYXRvciAoMC4uMSksIGV4cG9uZW50aWFsLWlzaCBkZWNheSBwZXIgZnJhbWUKICAgIDAuMCA9PiBmbG9hdCBmbGFzaDsKICAgIDAuOTAgPT4gZmxvYXQgZGVjYXk7ICAgICAvLyBjbG9zZXIgdG8gMS4wID0gbG9uZ2VyIGdsb3cKICAgIAogICAgLy8gcmVuZGVyIGxvb3AgKHN0ZXAgb25lIGdyYXBoaWNzIGZyYW1lIGF0IGEgdGltZSkKICAgIHdoaWxlICh0cnVlKQogICAgewogICAgICAgIC8vIGJ1bXAgd2hlbiBraWNrIGZpcmVzLCBvdGhlcndpc2UgZGVjYXkKICAgICAgICBpZiAoa2lja0ZsYXNoID09IDEpIHsgMS4wID0+IGZsYXNoOyAwID0+IGtpY2tGbGFzaDsgfQogICAgICAgIGVsc2UgICAgICAgICAgICAgICAgeyBmbGFzaCAqIGRlY2F5ID0+IGZsYXNoOyB9CiAgICAgICAgCiAgICAgICAgLy8gYnJpZ2h0ZW4gdG93YXJkIHdoaXRlIG9uIGZsYXNoOyBsZXJwIGJhc2UgLT4gd2hpdGUKICAgICAgICAvLyBjID0gYmFzZSooMSAtIGEpICsgd2hpdGUqYQogICAgICAgIDEuMCA9PiBmbG9hdCBhOwogICAgICAgIChhICogZmxhc2gpID0+IGE7CiAgICAgICAgQCggYmFzZUNvbC54ICogKDEgLSBhKSArIDEuMCAqIGEsCiAgICAgICAgYmFzZUNvbC55ICogKDEgLSBhKSArIDEuMCAqIGEsCiAgICAgICAgYmFzZUNvbC56ICogKDEgLSBhKSArIDEuMCAqIGEgKSA9PiB2ZWMzIGM7CiAgICAgICAgCiAgICAgICAgbGVmdE1hdC5jb2xvcihjKTsKICAgICAgICByaWdodE1hdC5jb2xvcihjKTsKICAgICAgICAKICAgICAgICAvLyBkcmF3IG5leHQgZnJhbWUgKHBlciBkb2NzOiBmaXJzdCBjYWxsIGFsc28gZW5zdXJlcyB3aW5kb3cgaXMgY3JlYXRlZCkKICAgICAgICBHRy5uZXh0RnJhbWUoKSA9PiBub3c7ICAgLy8gc3luYyByZW5kZXIgJiBhZHZhbmNlIHRpbWUKICAgIH0KfQoKc3BvcmsgfiB2aXN1YWxzS2lja1NpZGVCYXJzKCk7CgovLyA9PT09PSBDaHVHTDogZ3JhZGllbnQgc2t5IHRpZWQgdG8gZHJvbmUgZ2FpbiAoQ29zbWljIFdhc2gpID09PT09CmZ1biB2b2lkIHZpc3VhbHNEcm9uZUdyYWRpZW50KCkKewogICAgR1dpbmRvdy53aW5kb3dlZCg5MDAsIDUwMCk7CiAgICBHV2luZG93LnRpdGxlKCJEcm9uZSBHcmFkaWVudCBTa3kiKTsKICAgIAogICAgLy8gYmFja2dyb3VuZCBwbGFuZSBpbiB0aGUgZGVmYXVsdCBzY2VuZQogICAgR1BsYW5lIGJnIC0tPiBHRy5zY2VuZSgpOwogICAgQCgyLjYsIDUuMCwgMS4wKSA9PiBiZy5zY2E7ICAgLy8gc2l6ZSAoWCxZLFopCiAgICBAKDAuMCwgMC4wLCAtMC4xKSA9PiBiZy5wb3M7ICAvLyBzbGlnaHRseSBiZWhpbmQKICAgIAogICAgLy8gY29sb3JzOiBxdWlldCA9IGRlZXAgbmF2eSwgbG91ZCA9IGN5YW4vdGVhbAogICAgQCgwLjA1LCAwLjA1LCAwLjI1KSA9PiB2ZWMzIG5hdnk7CiAgICBAKDAuMzUsIDAuODUsIDEuMDApID0+IHZlYzMgdGVhbDsKICAgIAogICAgKDE6OnNlY29uZC82MCkgPT4gZHVyIGZyYW1lOyAgLy8gfjYwIEZQUwogICAgCiAgICB3aGlsZSAodHJ1ZSkKICAgIHsKICAgICAgICAvLyBjbGFtcCBkcm9uZVZpcyAoMC4uMSkKICAgICAgICBNYXRoLm1pbigxLjAsIE1hdGgubWF4KDAuMCwgZHJvbmVWaXMpKSA9PiBmbG9hdCBkdjsKICAgICAgICAKICAgICAgICAvLyBpbnRlcnBvbGF0ZTogbmF2eSooMS1kdikgKyB0ZWFsKmR2CiAgICAgICAgKG5hdnkueCAqICgxLjAgLSBkdikgKyB0ZWFsLnggKiBkdikgPT4gZmxvYXQgcjsKICAgICAgICAobmF2eS55ICogKDEuMCAtIGR2KSArIHRlYWwueSAqIGR2KSA9PiBmbG9hdCBnOwogICAgICAgIChuYXZ5LnogKiAoMS4wIC0gZHYpICsgdGVhbC56ICogZHYpID0+IGZsb2F0IGI7CiAgICAgICAgCiAgICAgICAgQChyLCBnLCBiKSA9PiB2ZWMzIHJnYjsKICAgICAgICBiZy5jb2xvcihyZ2IpOwogICAgICAgIAogICAgICAgIEdHLm5leHRGcmFtZSgpID0+IG5vdzsKICAgICAgICBmcmFtZSA9PiBub3c7CiAgICB9Cn0KCi8vIHN0YXJ0IHRoZSBncmFkaWVudCB2aXN1YWwKc3BvcmsgfiB2aXN1YWxzRHJvbmVHcmFkaWVudCgpOwoKLy8gLS0tLS0tLS0tLSBTQUZFVFkgJiBDT0xPUiBIRUxQRVJTIC0tLS0tLS0tLS0KZnVuIHZlYzMgcGNDb2xvcihmbG9hdCBoeikgewogICAgaWYgKGh6IDw9IDAuMCB8fCBNYXRoLmlzaW5mKGh6KSB8fCBNYXRoLmlzbmFuKGh6KSkgcmV0dXJuIEAoMC44NSwgMC45MCwgMS4wMCk7CiAgICBTdGQuZnRvbShoeikgPT4gZmxvYXQgbWlkaTsKICAgIChNYXRoLmZsb29yKG1pZGkgKyAwLjUpICQgaW50KSAlIDEyID0+IGludCBwYzsKICAgIGlmKHBjID09IDAgKSByZXR1cm4gQCgxLjAwLCAwLjYwLCAwLjYwKTsgLy8gQwogICAgaWYocGMgPT0gMSApIHJldHVybiBAKDEuMDAsIDAuNzUsIDAuNTUpOyAvLyBDIwogICAgaWYocGMgPT0gMiApIHJldHVybiBAKDEuMDAsIDAuOTUsIDAuNjApOyAvLyBECiAgICBpZihwYyA9PSAzICkgcmV0dXJuIEAoMC44NSwgMS4wMCwgMC42NSk7IC8vIEQjCiAgICBpZihwYyA9PSA0ICkgcmV0dXJuIEAoMC42NSwgMS4wMCwgMC43NSk7IC8vIEUKICAgIGlmKHBjID09IDUgKSByZXR1cm4gQCgwLjYwLCAxLjAwLCAwLjk1KTsgLy8gRgogICAgaWYocGMgPT0gNiApIHJldHVybiBAKDAuNjAsIDAuODUsIDEuMDApOyAvLyBGIwogICAgaWYocGMgPT0gNyApIHJldHVybiBAKDAuNjUsIDAuNzAsIDEuMDApOyAvLyBHCiAgICBpZihwYyA9PSA4ICkgcmV0dXJuIEAoMC44MCwgMC42NSwgMS4wMCk7IC8vIEcjCiAgICBpZihwYyA9PSA5ICkgcmV0dXJuIEAoMC45NSwgMC42NSwgMS4wMCk7IC8vIEEKICAgIGlmKHBjID09IDEwKSByZXR1cm4gQCgxLjAwLCAwLjY1LCAwLjg1KTsgLy8gQSMKICAgIHJldHVybiBAKDEuMDAsIDAuNjAsIDAuNzApOyAgICAgICAgICAgICAgLy8gQgp9CgovLyBicmlnaHQgaW1wYWN0IGNvbG9yICh3aGl0ZSBmbGFzaCkKZnVuIHZlYzMgaW1wYWN0Q29sb3IodmVjMyBfKSB7IHJldHVybiBAKDEuMCwgMS4wLCAxLjApOyB9CgovLyBsaW5lYXIgYmxlbmQgKDAuLjEpCmZ1biB2ZWMzIG1peCh2ZWMzIGEsIHZlYzMgYiwgZmxvYXQgdCkgewogICAgdCA9PiBmbG9hdCB1OyBpZih1IDwgMC4wKSAwLjAgPT4gdTsgaWYodSA+IDEuMCkgMS4wID0+IHU7CiAgICByZXR1cm4gQCgKICAgICAgICBhLngqKDEuMC11KSArIGIueCp1LAogICAgICAgIGEueSooMS4wLXUpICsgYi55KnUsCiAgICAgICAgYS56KigxLjAtdSkgKyBiLnoqdQogICAgKTsKfQoKLy8gLS0tLS0gcHJldmVudCBtdWx0aXBsZSB3aW5kb3cgaW5pdHMgaWYgeW91IHJlLXJ1biB0aGUgZmlsZSAtLS0tLQpnbG9iYWwgaW50IF92aXN1YWxzX2luaXRlZDsKCi8vID09PT09IENodUdMOiBTdGFyZmllbGQgT3JiaXRzIGZvciB0aGUgbGVhZCAoc2FmZSArIHN5bmNlZCArIHNpemUgdmFyaWV0eSkgPT09PT0KZnVuIHZvaWQgdmlzdWFsc0xlYWRPcmJpdHMoKQp7CiAgICBpZihfdmlzdWFsc19pbml0ZWQgPT0gMCkgewogICAgICAgIC8vIHdpbmRvdyArIHRpdGxlIChpbml0IG9uY2UpCiAgICAgICAgR1dpbmRvdy53aW5kb3dlZCg5MDAsIDUwMCk7CiAgICAgICAgR1dpbmRvdy50aXRsZSgiTGVhZCBPcmJpdHMiKTsKICAgICAgICAxID0+IF92aXN1YWxzX2luaXRlZDsKICAgIH0KICAgIAogICAgLy8gY2VudGVyIG51Y2xldXMKICAgIEdQbGFuZSBjZW50ZXIgLS0+IEdHLnNjZW5lKCk7CiAgICBAKDAuMDYsIDAuMDYsIDEuMCkgPT4gY2VudGVyLnNjYTsKICAgIEAoMC4wLCAwLjAsIDAuMCkgICA9PiBjZW50ZXIucG9zOwogICAgY2VudGVyLmNvbG9yKEAoMC45MCwgMC45NSwgMS4wMCkpOwogICAgCiAgICAvLyBwb29sIG9mIGRvdHMgKHBsYW5lcykKICAgIDI0ID0+IGludCBNQVg7CiAgICBHUGxhbmUgZG90c1tNQVhdOwogICAgZm9yICgwID0+IGludCBpOyBpIDwgTUFYOyBpKyspIHsKICAgICAgICBHUGxhbmUgcCAtLT4gR0cuc2NlbmUoKTsKICAgICAgICAvLyBhdm9pZCBleGFjdCB6ZXJvIHNjYWxlIG9uIFgvWQogICAgICAgIEAoMC4wMDAxLCAwLjAwMDEsIDEuMCkgPT4gcC5zY2E7ICAvLyBoaWRkZW4gdW50aWwgdXNlZAogICAgICAgIEAoMC4wLCAwLjAsIDAuMCkgICAgICAgPT4gcC5wb3M7CiAgICAgICAgcCBAPT4gZG90c1tpXTsKICAgIH0KICAgIAogICAgLy8gcGVyLWRvdCBzdGF0ZQogICAgZmxvYXQgYW5nW01BWF07ICAgICAgICAvLyBhbmdsZSAocmFkKQogICAgZmxvYXQgcmFkW01BWF07ICAgICAgICAvLyBiYXNlIHJhZGl1cyBmb3IgWAogICAgZmxvYXQgb21nW01BWF07ICAgICAgICAvLyBhbmd1bGFyIHNwZWVkIChyYWQvc2VjKQogICAgZmxvYXQgbGlmZVtNQVhdOyAgICAgICAvLyByZW1haW5pbmcgbGlmZSAoc2VjKQogICAgZmxvYXQgbGlmZU1heFtNQVhdOyAgICAvLyBtYXggbGlmZSAoc2VjKQogICAgZmxvYXQgc2l6ZTBbTUFYXTsgICAgICAvLyBzdGFydGluZyBkb3Qgc2l6ZSAod2l0aCBqaXR0ZXIpCiAgICB2ZWMzICBiYXNlQ1tNQVhdOyAgICAgIC8vIHBpdGNoIGNvbG9yCiAgICB2ZWMzICBoaXRDW01BWF07ICAgICAgIC8vIGltcGFjdCBmbGFzaCBjb2xvcgogICAgZmxvYXQgc2luY2VTcGF3bltNQVhdOyAvLyBzZWNvbmRzIHNpbmNlIHNwYXduCiAgICBpbnQgICBhbGl2ZVtNQVhdOyAgICAgIC8vIDAvMQogICAgCiAgICAvLyBwYXJhbWV0ZXJzICh1bmNoYW5nZWQgZmVlbCkKICAgIDAuMDMgPT4gZmxvYXQgUl9QRVJfU0VNSVRPTkU7CiAgICAwLjA2ID0+IGZsb2F0IFJfTUlOOwogICAgMC42MCA9PiBmbG9hdCBSX01BWDsgICAgICAgICAgICAvLyB3aWR0aCBjYXAgdW5jaGFuZ2VkIChrZWVwID4gMCkKICAgIDAuMDUgPT4gZmxvYXQgU0laRV9NSU47CiAgICAwLjExID0+IGZsb2F0IFNJWkVfTUFYOwogICAgMC4yMCA9PiBmbG9hdCBPTUdfTVVMVDsgICAgICAgICAvLyBzcGluIG11bHRpcGxpZXIgKGxvd2VyID0gc2xvd2VyKQogICAgCiAgICAvLyBORVc6IHNpemUgdmFyaWV0eSArIG9wdGlvbmFsIHB1bHNlCiAgICAwLjM1ID0+IGZsb2F0IFNJWkVfSklUVEVSOyAgLy8gKy0zNSUgcmFuZG9tIHNpemUgdmFyaWFuY2UgYXQgc3Bhd24KICAgIDAuMTAgPT4gZmxvYXQgUFVMU0VfQU1UOyAgICAvLyAwLi5+MC4yIG5pY2U7IHNldCAwLjAgdG8gZGlzYWJsZQogICAgMi4wICA9PiBmbG9hdCBQVUxTRV9IWjsgICAgIC8vIHB1bHNlcyBwZXIgc2Vjb25kCiAgICAKICAgIC8vIHZlcnRpY2FsIHN0cmV0Y2ggdG8gKy01LjAgKGd1YXJkIGRpdmlzb3IpCiAgICA1LjAgID0+IGZsb2F0IFlfTUFYOwogICAgKFlfTUFYIC8gTWF0aC5tYXgoUl9NQVgsIDAuMDAwMSkpID0+IGZsb2F0IFlfU0NBTEU7CiAgICAKICAgIC8vIGltcGFjdCBmbGFzaCBkdXJhdGlvbgogICAgMC4xMCA9PiBmbG9hdCBJTVBBQ1RfRFVSOyAgICAgICAvLyAxMDAgbXMgZmxhc2gKICAgIAogICAgLy8gZnJhbWUgdGltaW5nIChndWFyZCBkdCkKICAgICgxOjpzZWNvbmQvNjApID0+IGR1ciBmcmFtZTsKICAgIE1hdGgubWF4KDEuMC82MDAuMCwgKGZyYW1lIC8gc2Vjb25kKSAkIGZsb2F0KSA9PiBmbG9hdCBkdDsKICAgIAogICAgd2hpbGUgKHRydWUpCiAgICB7CiAgICAgICAgLy8gc3Bhd24gRVZFUlkgdGltZSB3ZSBnZXQgYSBub3RlLW9uIChldmVuIGlmIHNhbWUgcGl0Y2gpCiAgICAgICAgaWYgKGxlYWRUcmlnID09IDEpIHsKICAgICAgICAgICAgMCA9PiBsZWFkVHJpZzsgLy8gY29uc3VtZSB0cmlnZ2VyIGltbWVkaWF0ZWx5CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBmaW5kIGZyZWUgc2xvdCAob3Igb3ZlcndyaXRlIG9sZGVzdCBpbmRleCAwIGlmIG5vbmUpCiAgICAgICAgICAgIC0xID0+IGludCBzOwogICAgICAgICAgICBmb3IgKDAgPT4gaW50IGk7IGkgPCBNQVg7IGkrKykgaWYgKCFhbGl2ZVtpXSkgeyBpID0+IHM7IGJyZWFrOyB9CiAgICAgICAgICAgIGlmIChzID09IC0xKSAwID0+IHM7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBzbmFwc2hvdCBjdXJyZW50L3ByZXYgZnJlcSAoZ3VhcmQgdmFsdWVzKQogICAgICAgICAgICAobGVhZEZyZXEgID4gMC4wICYmICFNYXRoLmlzbmFuKGxlYWRGcmVxKSkgID8gbGVhZEZyZXEgIDogMjIwLjAgPT4gZmxvYXQgY3VycjsKICAgICAgICAgICAgKHByZXZGcmVxICA+IDAuMCAmJiAhTWF0aC5pc25hbihwcmV2RnJlcSkpICA/IHByZXZGcmVxICA6IGN1cnIgICA9PiBmbG9hdCBwcmV2OwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gd2lkdGggcmFkaXVzIGZyb20gSU5URVJWQUwgKGluIHNlbWl0b25lcyksIGNsYW1wZWQKICAgICAgICAgICAgTWF0aC5mYWJzKFN0ZC5mdG9tKGN1cnIpIC0gU3RkLmZ0b20ocHJldikpID0+IGZsb2F0IHNlbWlzOwogICAgICAgICAgICAoc2VtaXMgKiBSX1BFUl9TRU1JVE9ORSkgPT4gZmxvYXQgclRtcDsKICAgICAgICAgICAgTWF0aC5tYXgoUl9NSU4sIE1hdGgubWluKFJfTUFYLCByVG1wKSkgPT4gcmFkW3NdOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gcGl0Y2gtbG9ja2VkIHNwaW47IGNsYW1wIHRvIHNhbmUgcmFuZ2UKICAgICAgICAgICAgKDIuMCAqIE1hdGguUEkgKiBjdXJyICogT01HX01VTFQpID0+IGZsb2F0IG9tZ1RtcDsKICAgICAgICAgICAgaWYoTWF0aC5pc25hbihvbWdUbXApIHx8IE1hdGguaXNpbmYob21nVG1wKSkgMC4wID0+IG9tZ1RtcDsKICAgICAgICAgICAgb21nVG1wID0+IG9tZ1tzXTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIGxpZmV0aW1lID0gZXhhY3Qgbm90ZSBkdXJhdGlvbiwgd2l0aCBmbG9vci9jZWlsaW5nCiAgICAgICAgICAgIE1hdGgubWF4KDAuMDEsIE1hdGgubWluKDEwLjAsIE1hdGguaXNuYW4obGVhZER1clNlYykgPyAwLjI1IDogbGVhZER1clNlYykpID0+IGxpZmVNYXhbc107CiAgICAgICAgICAgIGxpZmVNYXhbc10gPT4gbGlmZVtzXTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIHNpemUgZnJvbSB2ZWxvY2l0eSwgdGhlbiBhZGQgaml0dGVyIChORVcpCiAgICAgICAgICAgIChNYXRoLmlzbmFuKGxlYWRWZWwpID8gMC44IDogTWF0aC5taW4oMS4wLCBNYXRoLm1heCgwLjAsIGxlYWRWZWwpKSkgPT4gZmxvYXQgdjsKICAgICAgICAgICAgU0laRV9NSU4gKyAoU0laRV9NQVggLSBTSVpFX01JTikgKiB2ID0+IGZsb2F0IGJhc2VTejsKICAgICAgICAgICAgKDEuMCArIE1hdGgucmFuZG9tMmYoLVNJWkVfSklUVEVSLCBTSVpFX0pJVFRFUikpICogYmFzZVN6ID0+IHNpemUwW3NdOwogICAgICAgICAgICAvLyBjbGFtcCB0byBzYWZlIGJvdW5kcwogICAgICAgICAgICBpZiAoc2l6ZTBbc10gPCAwLjAyKSAwLjAyID0+IHNpemUwW3NdOwogICAgICAgICAgICBpZiAoc2l6ZTBbc10gPiAwLjI1KSAwLjI1ID0+IHNpemUwW3NdOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gY29sb3JzOiBmbGFzaCB0aGVuIHNldHRsZSB0byBwaXRjaCBjb2xvcgogICAgICAgICAgICBwY0NvbG9yKGN1cnIpID0+IGJhc2VDW3NdOwogICAgICAgICAgICBpbXBhY3RDb2xvcihiYXNlQ1tzXSkgPT4gaGl0Q1tzXTsKICAgICAgICAgICAgMC4wID0+IHNpbmNlU3Bhd25bc107CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBzdGFydCBhbmdsZQogICAgICAgICAgICBNYXRoLnJhbmRvbTJmKDAuMCwgMi4wKk1hdGguUEkpID0+IGFuZ1tzXTsKICAgICAgICAgICAgCiAgICAgICAgICAgIDEgPT4gYWxpdmVbc107CiAgICAgICAgfQogICAgICAgIAogICAgICAgIC8vIHVwZGF0ZXMKICAgICAgICBmb3IgKDAgPT4gaW50IGk7IGkgPCBNQVg7IGkrKykgewogICAgICAgICAgICBpZiAoIWFsaXZlW2ldKSBjb250aW51ZTsKICAgICAgICAgICAgCiAgICAgICAgICAgIGxpZmVbaV0gLSBkdCA9PiBsaWZlW2ldOwogICAgICAgICAgICBzaW5jZVNwYXduW2ldICsgZHQgPT4gc2luY2VTcGF3bltpXTsKICAgICAgICAgICAgCiAgICAgICAgICAgIGlmIChsaWZlW2ldIDw9IDAuMCkgewogICAgICAgICAgICAgICAgMCA9PiBhbGl2ZVtpXTsKICAgICAgICAgICAgICAgIC8vIGhpZGUgc2FmZWx5IChhdm9pZCBleGFjdCB6ZXJvIHNjYWxlIG9uIGJvdGggWC9ZKQogICAgICAgICAgICAgICAgQCgwLjAwMDEsIDAuMDAwMSwgMS4wKSA9PiBkb3RzW2ldLnNjYTsKICAgICAgICAgICAgICAgIGNvbnRpbnVlOwogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBtb3Rpb246IHdpZHRoIHNhbWUsIFkgc3RyZXRjaGVkCiAgICAgICAgICAgIGFuZ1tpXSArIG9tZ1tpXSpkdCA9PiBhbmdbaV07CiAgICAgICAgICAgIE1hdGguY29zKGFuZ1tpXSkgKiByYWRbaV0gICAgICAgICAgID0+IGZsb2F0IHg7CiAgICAgICAgICAgIE1hdGguc2luKGFuZ1tpXSkgKiByYWRbaV0gKiBZX1NDQUxFID0+IGZsb2F0IHk7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBndWFyZCBOYU5zCiAgICAgICAgICAgIGlmKE1hdGguaXNuYW4oeCkgfHwgTWF0aC5pc2luZih4KSkgMC4wICA9PiB4OwogICAgICAgICAgICBpZihNYXRoLmlzbmFuKHkpIHx8IE1hdGguaXNpbmYoeSkpIDAuMCAgPT4geTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIGltcGFjdCBmbGFzaCAtPiBiYXNlIGNvbG9yIGJsZW5kCiAgICAgICAgICAgIE1hdGgubWF4KDAuMCwgMS4wIC0gKHNpbmNlU3Bhd25baV0gLyBNYXRoLm1heChJTVBBQ1RfRFVSLCAwLjAwMDEpKSkgPT4gZmxvYXQgZmxhc2hUOyAvLyAxLi4wCiAgICAgICAgICAgIG1peChiYXNlQ1tpXSwgaGl0Q1tpXSwgZmxhc2hUKSA9PiB2ZWMzIGN1cnJDOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gZmFkZSBicmlnaHRuZXNzIHdpdGggYWdlCiAgICAgICAgICAgIChsaWZlW2ldIC8gTWF0aC5tYXgobGlmZU1heFtpXSwgMC4wMDAxKSkgPT4gZmxvYXQgYTsgLy8gMS4uMAogICAgICAgICAgICBpZihNYXRoLmlzbmFuKGEpIHx8IE1hdGguaXNpbmYoYSkpIDAuMCA9PiBhOwogICAgICAgICAgICBAKCBjdXJyQy54ICogYSwgY3VyckMueSAqIGEsIGN1cnJDLnogKiBhICkgPT4gdmVjMyBvdXRDOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gTkVXOiBvcHRpb25hbCBnZW50bGUgcHVsc2Ugb3ZlciBsaWZldGltZQogICAgICAgICAgICBmbG9hdCBwdWxzZTsKICAgICAgICAgICAgaWYgKFBVTFNFX0FNVCA+IDAuMCkgewogICAgICAgICAgICAgICAgKChsaWZlTWF4W2ldLWxpZmVbaV0pICogMi4wICogTWF0aC5QSSAqIFBVTFNFX0haKSA9PiBmbG9hdCB0cGhhc2U7CiAgICAgICAgICAgICAgICAoMS4wICsgUFVMU0VfQU1UICogTWF0aC5zaW4odHBoYXNlKSkgPT4gcHVsc2U7CiAgICAgICAgICAgIH0gZWxzZSB7IDEuMCA9PiBwdWxzZTsgfQogICAgICAgICAgICAKICAgICAgICAgICAgLy8gc2l6ZSB3aXRoIGZsb29yCiAgICAgICAgICAgIChzaXplMFtpXSAqICgwLjQgKyAwLjYqYSkgKiBwdWxzZSkgPT4gZmxvYXQgc3o7CiAgICAgICAgICAgIGlmKHN6IDwgMC4wMDAyKSAwLjAwMDIgPT4gc3o7ICAvLyBhdm9pZCBmdWxseSB6ZXJvIHNjYWxlCiAgICAgICAgICAgIAogICAgICAgICAgICBAKHN6LCBzeiwgMS4wKSA9PiBkb3RzW2ldLnNjYTsKICAgICAgICAgICAgQCh4LCB5LCAwLjApICAgPT4gZG90c1tpXS5wb3M7CiAgICAgICAgICAgIGRvdHNbaV0uY29sb3Iob3V0Qyk7CiAgICAgICAgfQogICAgICAgIAogICAgICAgIEdHLm5leHRGcmFtZSgpID0+IG5vdzsgIC8vIHBlci1mcmFtZSBzdGVwIChyZXF1aXJlZCkKICAgICAgICBmcmFtZSA9PiBub3c7CiAgICB9Cn0KCi8vIHJ1biB2aXN1YWxzIChzYWZlIHRvIGNhbGwgbXVsdGlwbGUgdGltZXM7IGluaXQgZ3VhcmRlZCkKc3BvcmsgfiB2aXN1YWxzTGVhZE9yYml0cygpOwoKLy8gLS0tLS0tLS0tLSBrZWVwIFZNIGFsaXZlIC0tLS0tLS0tLS0Kd2hpbGUgKHRydWUpIDE6OnNlY29uZCA9PiBub3c7Cg==" download="visualizer.ck">⬇️ Download <code>visualizer.ck</code></a>
+        <a class="btn" href="#source">📄 Jump to Source</a>
+      </div>
+      <p class="small">Tip: If Canvas only allows a URL, this HTML page contains the downloadable code and a readable copy below.</p>
+      <div class="divider"></div>
+      <div id="source" class="codewrap">
+        <div class="codehdr">
+          <span>visualizer.ck</span>
+          <button class="btn" id="copyBtn" title="Copy code to clipboard">Copy</button>
+        </div>
+        <pre id="code"><code>// =================== SIMPLE MODAL JAM ===================
+// Lead: random E Dorian (2 octaves) + reverb
+// Drone: single E3 with slow gain oscillation
+// Rhythm: kick every beat
+
+// ---------- GRAPHICS FLAG ----------
+global int kickFlash;   // 0/1: set to 1 when kick triggers
+global float droneVis;   // 0..1 mirror of the drone&#x27;s current gain
+
+// lead ? visuals bridge
+global int   leadTrig;   // set to 1 on each note-on
+global float leadFreq;   // Hz of current note
+global float prevFreq;   // Hz of previous note
+global float leadVel;    // 0..1 (how strong the note is; use a constant if no envelope)
+global float leadDurSec; // duration (in seconds) of the current lead note
+
+
+
+// ---------- TEMPO ----------
+120 =&gt; float BPM;                         // tweak tempo
+(60.0 / BPM)::second =&gt; dur beat;         // 1 beat
+
+// ---------- LEAD (random notes + reverb) ----------
+SawOsc lead =&gt; Gain lg =&gt; JCRev rv =&gt; dac;
+0.25 =&gt; lg.gain;
+0.20 =&gt; rv.mix;                  // tweak reverb amount (0..1)
+
+// E Dorian (E F# G A B C# D) across two octaves: E3..D5
+[52,54,55,57,59,61,62, 64,66,67,69,71,73,74] @=&gt; int E_DORIAN[];
+
+fun void leadRandom() {
+    // start aligned to an 8th-note grid
+    (beat/2) - (now % (beat/2)) =&gt; now;
+    
+    // base lengths to choose from: 8ths, quarters, halves
+    [ beat/2, beat, 2::beat ] @=&gt; dur baseChoices[];
+    
+    0.06 =&gt; float jitterFrac; // +-6% timing jitter
+    
+    while (true) {
+        // --- pick pitch ---
+        Math.random2(0, E_DORIAN.size()-1) =&gt; int i;
+        
+        // compute the frequency once
+        Std.mtof(E_DORIAN[i]) =&gt; float f;
+        
+        // finally set the oscillator
+        f =&gt; lead.freq;
+        
+        // --- timing (quantized with light jitter) ---
+        baseChoices[Math.random2(0, baseChoices.size()-1)] =&gt; dur base;
+        (base / samp) =&gt; float baseSamps;
+        Math.random2f(-jitterFrac, jitterFrac) * baseSamps =&gt; float jitterSamps;
+        Math.max((5::ms / samp), baseSamps + jitterSamps) $ int =&gt; int totalSamps;
+        
+        // &gt;&gt;&gt; expose exact duration in seconds for visuals &lt;&lt;&lt;
+        (totalSamps :: samp / second) $ float =&gt; leadDurSec;
+        
+        // --- update globals for the visual (orbits) ---
+        leadFreq =&gt; prevFreq;   // remember previous note
+        f        =&gt; leadFreq;   // current note
+        0.8      =&gt; leadVel;    // or Math.random2f(0.6,0.9)
+        
+        // trigger *after* we?ve set leadFreq and leadDurSec
+        1        =&gt; leadTrig;   // spawn an orbit this note
+        
+        // wait for this note&#x27;s actual (jittered) duration
+        (totalSamps :: samp) =&gt; now;
+    }
+}
+
+spork ~ leadRandom();
+
+// ---------- DRONE (one note with gently shifting volume) ----------
+SinOsc drone =&gt; Gain dG =&gt; dac;
+Std.mtof(52) =&gt; drone.freq;      // E3
+0.0 =&gt; dG.gain;                  // start silent
+
+SinOsc lfo =&gt; blackhole;         // slow LFO for gain
+0.20 =&gt; lfo.freq;                // ~5s cycle
+
+0.10 =&gt; float DRONE_MIN;
+0.45 =&gt; float DRONE_MAX;
+
+fun void droneSwell() {
+    while (true) {
+        DRONE_MIN + ((lfo.last() + 1.0) * 0.5) * (DRONE_MAX - DRONE_MIN) =&gt; dG.gain;
+        dG.gain() =&gt; droneVis;     // expose to visuals
+        10::ms =&gt; now;
+    }
+}
+spork ~ droneSwell();
+
+// ---------- RHYTHM: KICK (808-style synth) ----------
+fun void kick808() {
+    // Body: sine -&gt; amp env -&gt; mix
+    SinOsc body =&gt; ADSR amp =&gt; Gain mix =&gt; dac;
+    // Click: noise -&gt; highpass -&gt; short env -&gt; mix
+    Noise n =&gt; HPF hp =&gt; ADSR click =&gt; mix;
+    
+    // Levels
+    0.6  =&gt; mix.gain;     // overall kick loudness (raise/lower to taste)
+    0.9  =&gt; body.gain;    // body dominates
+    0.25 =&gt; n.gain;       // click is subtle
+    
+    // Envelopes
+    amp.set(1::ms, 120::ms, 0.0, 25::ms);   // fast attack, short decay
+    click.set(1::ms, 15::ms, 0.0, 5::ms);   // tiny transient
+    1800 =&gt; hp.freq;                        // brighten click
+    
+    // Timing helpers
+    70::ms =&gt; dur sweep;    // pitch sweep length (feel of the &quot;thump&quot;)
+    20     =&gt; int steps;    // smoothness of sweep
+    
+    // Sync to beat grid
+    beat - (now % beat) =&gt; now;
+    
+    while(true) {
+        // slight natural variation each hit
+        Math.random2f(110.0, 140.0) =&gt; float fStart;  // Hz
+        Math.random2f(40.0, 55.0)   =&gt; float fEnd;    // Hz
+        
+        // trigger envelopes
+        amp.keyOn();
+        click.keyOn();
+        1 =&gt; kickFlash;   // &lt;-- set flag for the light pulse
+        
+        // exponential pitch sweep: f(t) = fStart * (fEnd/fStart)^t
+        for (0 =&gt; int i; i &lt; steps; i++) {
+            (i $ float) / (steps - 1) =&gt; float t;
+            fStart * Math.pow(fEnd / fStart, t) =&gt; body.freq;
+            (sweep / steps) =&gt; now;
+        }
+        
+        // release envelopes
+        click.keyOff();
+        amp.keyOff();
+        
+        // wait the rest of the beat
+        (beat - sweep) =&gt; now;
+    }
+}
+spork ~ kick808();
+
+//visuals 
+
+// ===== ChuGL: side stage lights (pastel blue) that flash on kick =====
+fun void visualsKickSideBars()
+{
+    // set window title (optional size is handled automatically)
+    GG.windowTitle( &quot;Kick Side Lights&quot; );   // API style in examples
+    
+    // ----- geometry: two tall, thin planes added to the default scene -----
+    // connect geometry into the scene (example shows: GPlane --&gt; GG.scene())
+    GPlane leftGeo  --&gt; GG.scene();
+    GPlane rightGeo --&gt; GG.scene();
+    
+    // scale &amp; position (normalized-ish scene coordinates)
+    // width ~0.05 looks like a ~10px sliver on ~800?900px window;
+    // height 2 fills the view vertically with default camera.
+    @(0.55, 5.0, 1) =&gt; leftGeo.sca;
+    @(-.99, 0, 0)  =&gt; leftGeo.pos;
+    
+    @(0.55, 5.0, 1) =&gt; rightGeo.sca;
+    @( 0.99, 0, 0)  =&gt; rightGeo.pos;
+    
+    // make flat-color materials (pastel blue) and assign
+    FlatMaterial leftMat ( Color.WHITE );
+    FlatMaterial rightMat( Color.WHITE );
+    leftGeo.mat(leftMat);
+    rightGeo.mat(rightMat);
+    
+    // base pastel blue
+    @(0.0, 0.3, 1.0) =&gt; vec3 baseCol;   // strong saturated blue
+        
+    // flash accumulator (0..1), exponential-ish decay per frame
+    0.0 =&gt; float flash;
+    0.90 =&gt; float decay;     // closer to 1.0 = longer glow
+    
+    // render loop (step one graphics frame at a time)
+    while (true)
+    {
+        // bump when kick fires, otherwise decay
+        if (kickFlash == 1) { 1.0 =&gt; flash; 0 =&gt; kickFlash; }
+        else                { flash * decay =&gt; flash; }
+        
+        // brighten toward white on flash; lerp base -&gt; white
+        // c = base*(1 - a) + white*a
+        1.0 =&gt; float a;
+        (a * flash) =&gt; a;
+        @( baseCol.x * (1 - a) + 1.0 * a,
+        baseCol.y * (1 - a) + 1.0 * a,
+        baseCol.z * (1 - a) + 1.0 * a ) =&gt; vec3 c;
+        
+        leftMat.color(c);
+        rightMat.color(c);
+        
+        // draw next frame (per docs: first call also ensures window is created)
+        GG.nextFrame() =&gt; now;   // sync render &amp; advance time
+    }
+}
+
+spork ~ visualsKickSideBars();
+
+// ===== ChuGL: gradient sky tied to drone gain (Cosmic Wash) =====
+fun void visualsDroneGradient()
+{
+    GWindow.windowed(900, 500);
+    GWindow.title(&quot;Drone Gradient Sky&quot;);
+    
+    // background plane in the default scene
+    GPlane bg --&gt; GG.scene();
+    @(2.6, 5.0, 1.0) =&gt; bg.sca;   // size (X,Y,Z)
+    @(0.0, 0.0, -0.1) =&gt; bg.pos;  // slightly behind
+    
+    // colors: quiet = deep navy, loud = cyan/teal
+    @(0.05, 0.05, 0.25) =&gt; vec3 navy;
+    @(0.35, 0.85, 1.00) =&gt; vec3 teal;
+    
+    (1::second/60) =&gt; dur frame;  // ~60 FPS
+    
+    while (true)
+    {
+        // clamp droneVis (0..1)
+        Math.min(1.0, Math.max(0.0, droneVis)) =&gt; float dv;
+        
+        // interpolate: navy*(1-dv) + teal*dv
+        (navy.x * (1.0 - dv) + teal.x * dv) =&gt; float r;
+        (navy.y * (1.0 - dv) + teal.y * dv) =&gt; float g;
+        (navy.z * (1.0 - dv) + teal.z * dv) =&gt; float b;
+        
+        @(r, g, b) =&gt; vec3 rgb;
+        bg.color(rgb);
+        
+        GG.nextFrame() =&gt; now;
+        frame =&gt; now;
+    }
+}
+
+// start the gradient visual
+spork ~ visualsDroneGradient();
+
+// ---------- SAFETY &amp; COLOR HELPERS ----------
+fun vec3 pcColor(float hz) {
+    if (hz &lt;= 0.0 || Math.isinf(hz) || Math.isnan(hz)) return @(0.85, 0.90, 1.00);
+    Std.ftom(hz) =&gt; float midi;
+    (Math.floor(midi + 0.5) $ int) % 12 =&gt; int pc;
+    if(pc == 0 ) return @(1.00, 0.60, 0.60); // C
+    if(pc == 1 ) return @(1.00, 0.75, 0.55); // C#
+    if(pc == 2 ) return @(1.00, 0.95, 0.60); // D
+    if(pc == 3 ) return @(0.85, 1.00, 0.65); // D#
+    if(pc == 4 ) return @(0.65, 1.00, 0.75); // E
+    if(pc == 5 ) return @(0.60, 1.00, 0.95); // F
+    if(pc == 6 ) return @(0.60, 0.85, 1.00); // F#
+    if(pc == 7 ) return @(0.65, 0.70, 1.00); // G
+    if(pc == 8 ) return @(0.80, 0.65, 1.00); // G#
+    if(pc == 9 ) return @(0.95, 0.65, 1.00); // A
+    if(pc == 10) return @(1.00, 0.65, 0.85); // A#
+    return @(1.00, 0.60, 0.70);              // B
+}
+
+// bright impact color (white flash)
+fun vec3 impactColor(vec3 _) { return @(1.0, 1.0, 1.0); }
+
+// linear blend (0..1)
+fun vec3 mix(vec3 a, vec3 b, float t) {
+    t =&gt; float u; if(u &lt; 0.0) 0.0 =&gt; u; if(u &gt; 1.0) 1.0 =&gt; u;
+    return @(
+        a.x*(1.0-u) + b.x*u,
+        a.y*(1.0-u) + b.y*u,
+        a.z*(1.0-u) + b.z*u
+    );
+}
+
+// ----- prevent multiple window inits if you re-run the file -----
+global int _visuals_inited;
+
+// ===== ChuGL: Starfield Orbits for the lead (safe + synced + size variety) =====
+fun void visualsLeadOrbits()
+{
+    if(_visuals_inited == 0) {
+        // window + title (init once)
+        GWindow.windowed(900, 500);
+        GWindow.title(&quot;Lead Orbits&quot;);
+        1 =&gt; _visuals_inited;
+    }
+    
+    // center nucleus
+    GPlane center --&gt; GG.scene();
+    @(0.06, 0.06, 1.0) =&gt; center.sca;
+    @(0.0, 0.0, 0.0)   =&gt; center.pos;
+    center.color(@(0.90, 0.95, 1.00));
+    
+    // pool of dots (planes)
+    24 =&gt; int MAX;
+    GPlane dots[MAX];
+    for (0 =&gt; int i; i &lt; MAX; i++) {
+        GPlane p --&gt; GG.scene();
+        // avoid exact zero scale on X/Y
+        @(0.0001, 0.0001, 1.0) =&gt; p.sca;  // hidden until used
+        @(0.0, 0.0, 0.0)       =&gt; p.pos;
+        p @=&gt; dots[i];
+    }
+    
+    // per-dot state
+    float ang[MAX];        // angle (rad)
+    float rad[MAX];        // base radius for X
+    float omg[MAX];        // angular speed (rad/sec)
+    float life[MAX];       // remaining life (sec)
+    float lifeMax[MAX];    // max life (sec)
+    float size0[MAX];      // starting dot size (with jitter)
+    vec3  baseC[MAX];      // pitch color
+    vec3  hitC[MAX];       // impact flash color
+    float sinceSpawn[MAX]; // seconds since spawn
+    int   alive[MAX];      // 0/1
+    
+    // parameters (unchanged feel)
+    0.03 =&gt; float R_PER_SEMITONE;
+    0.06 =&gt; float R_MIN;
+    0.60 =&gt; float R_MAX;            // width cap unchanged (keep &gt; 0)
+    0.05 =&gt; float SIZE_MIN;
+    0.11 =&gt; float SIZE_MAX;
+    0.20 =&gt; float OMG_MULT;         // spin multiplier (lower = slower)
+    
+    // NEW: size variety + optional pulse
+    0.35 =&gt; float SIZE_JITTER;  // +-35% random size variance at spawn
+    0.10 =&gt; float PULSE_AMT;    // 0..~0.2 nice; set 0.0 to disable
+    2.0  =&gt; float PULSE_HZ;     // pulses per second
+    
+    // vertical stretch to +-5.0 (guard divisor)
+    5.0  =&gt; float Y_MAX;
+    (Y_MAX / Math.max(R_MAX, 0.0001)) =&gt; float Y_SCALE;
+    
+    // impact flash duration
+    0.10 =&gt; float IMPACT_DUR;       // 100 ms flash
+    
+    // frame timing (guard dt)
+    (1::second/60) =&gt; dur frame;
+    Math.max(1.0/600.0, (frame / second) $ float) =&gt; float dt;
+    
+    while (true)
+    {
+        // spawn EVERY time we get a note-on (even if same pitch)
+        if (leadTrig == 1) {
+            0 =&gt; leadTrig; // consume trigger immediately
+            
+            // find free slot (or overwrite oldest index 0 if none)
+            -1 =&gt; int s;
+            for (0 =&gt; int i; i &lt; MAX; i++) if (!alive[i]) { i =&gt; s; break; }
+            if (s == -1) 0 =&gt; s;
+            
+            // snapshot current/prev freq (guard values)
+            (leadFreq  &gt; 0.0 &amp;&amp; !Math.isnan(leadFreq))  ? leadFreq  : 220.0 =&gt; float curr;
+            (prevFreq  &gt; 0.0 &amp;&amp; !Math.isnan(prevFreq))  ? prevFreq  : curr   =&gt; float prev;
+            
+            // width radius from INTERVAL (in semitones), clamped
+            Math.fabs(Std.ftom(curr) - Std.ftom(prev)) =&gt; float semis;
+            (semis * R_PER_SEMITONE) =&gt; float rTmp;
+            Math.max(R_MIN, Math.min(R_MAX, rTmp)) =&gt; rad[s];
+            
+            // pitch-locked spin; clamp to sane range
+            (2.0 * Math.PI * curr * OMG_MULT) =&gt; float omgTmp;
+            if(Math.isnan(omgTmp) || Math.isinf(omgTmp)) 0.0 =&gt; omgTmp;
+            omgTmp =&gt; omg[s];
+            
+            // lifetime = exact note duration, with floor/ceiling
+            Math.max(0.01, Math.min(10.0, Math.isnan(leadDurSec) ? 0.25 : leadDurSec)) =&gt; lifeMax[s];
+            lifeMax[s] =&gt; life[s];
+            
+            // size from velocity, then add jitter (NEW)
+            (Math.isnan(leadVel) ? 0.8 : Math.min(1.0, Math.max(0.0, leadVel))) =&gt; float v;
+            SIZE_MIN + (SIZE_MAX - SIZE_MIN) * v =&gt; float baseSz;
+            (1.0 + Math.random2f(-SIZE_JITTER, SIZE_JITTER)) * baseSz =&gt; size0[s];
+            // clamp to safe bounds
+            if (size0[s] &lt; 0.02) 0.02 =&gt; size0[s];
+            if (size0[s] &gt; 0.25) 0.25 =&gt; size0[s];
+            
+            // colors: flash then settle to pitch color
+            pcColor(curr) =&gt; baseC[s];
+            impactColor(baseC[s]) =&gt; hitC[s];
+            0.0 =&gt; sinceSpawn[s];
+            
+            // start angle
+            Math.random2f(0.0, 2.0*Math.PI) =&gt; ang[s];
+            
+            1 =&gt; alive[s];
+        }
+        
+        // updates
+        for (0 =&gt; int i; i &lt; MAX; i++) {
+            if (!alive[i]) continue;
+            
+            life[i] - dt =&gt; life[i];
+            sinceSpawn[i] + dt =&gt; sinceSpawn[i];
+            
+            if (life[i] &lt;= 0.0) {
+                0 =&gt; alive[i];
+                // hide safely (avoid exact zero scale on both X/Y)
+                @(0.0001, 0.0001, 1.0) =&gt; dots[i].sca;
+                continue;
+            }
+            
+            // motion: width same, Y stretched
+            ang[i] + omg[i]*dt =&gt; ang[i];
+            Math.cos(ang[i]) * rad[i]           =&gt; float x;
+            Math.sin(ang[i]) * rad[i] * Y_SCALE =&gt; float y;
+            
+            // guard NaNs
+            if(Math.isnan(x) || Math.isinf(x)) 0.0  =&gt; x;
+            if(Math.isnan(y) || Math.isinf(y)) 0.0  =&gt; y;
+            
+            // impact flash -&gt; base color blend
+            Math.max(0.0, 1.0 - (sinceSpawn[i] / Math.max(IMPACT_DUR, 0.0001))) =&gt; float flashT; // 1..0
+            mix(baseC[i], hitC[i], flashT) =&gt; vec3 currC;
+            
+            // fade brightness with age
+            (life[i] / Math.max(lifeMax[i], 0.0001)) =&gt; float a; // 1..0
+            if(Math.isnan(a) || Math.isinf(a)) 0.0 =&gt; a;
+            @( currC.x * a, currC.y * a, currC.z * a ) =&gt; vec3 outC;
+            
+            // NEW: optional gentle pulse over lifetime
+            float pulse;
+            if (PULSE_AMT &gt; 0.0) {
+                ((lifeMax[i]-life[i]) * 2.0 * Math.PI * PULSE_HZ) =&gt; float tphase;
+                (1.0 + PULSE_AMT * Math.sin(tphase)) =&gt; pulse;
+            } else { 1.0 =&gt; pulse; }
+            
+            // size with floor
+            (size0[i] * (0.4 + 0.6*a) * pulse) =&gt; float sz;
+            if(sz &lt; 0.0002) 0.0002 =&gt; sz;  // avoid fully zero scale
+            
+            @(sz, sz, 1.0) =&gt; dots[i].sca;
+            @(x, y, 0.0)   =&gt; dots[i].pos;
+            dots[i].color(outC);
+        }
+        
+        GG.nextFrame() =&gt; now;  // per-frame step (required)
+        frame =&gt; now;
+    }
+}
+
+// run visuals (safe to call multiple times; init guarded)
+spork ~ visualsLeadOrbits();
+
+// ---------- keep VM alive ----------
+while (true) 1::second =&gt; now;
+</code></pre>
+      </div>
+    </div>
+  </div>
+  <script>
+    const copyBtn = document.getElementById('copyBtn');
+    const code = document.getElementById('code');
+    copyBtn.addEventListener('click', async () => {
+      try {
+        const txt = code.innerText;
+        await navigator.clipboard.writeText(txt);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => copyBtn.textContent = 'Copy', 1400);
+      } catch (e) {
+        copyBtn.textContent = 'Copy failed';
+        setTimeout(() => copyBtn.textContent = 'Copy', 1400);
+      }
+    });
+  </script>
+</body>
+</html>
